@@ -184,6 +184,7 @@ function RealisticWorldView(shader_return_value) {
         var gradient = ScalarField.gradient(world.lithosphere.surface_height.value());
         VectorField.div_scalar(gradient, world.radius, gradient);
 
+        var biosphere_memos = Biosphere.get_memos(world.biosphere, world.atmosphere, undefined);
         // RENDERPASS PROPERTIES -----------------------------------------------
 
         // VIEW PROPERTIES
@@ -211,20 +212,20 @@ function RealisticWorldView(shader_return_value) {
         update_renderpass_attribute('displacement',              world.lithosphere.displacement.value());
         update_renderpass_attribute('surface_temperature',       world.atmosphere.surface_temperature);
         update_renderpass_attribute('snow_coverage',             world.hydrosphere.snow_coverage.value());
-        update_renderpass_attribute('plant_coverage',            world.biosphere.plant_coverage.value());
+        update_renderpass_attribute('plant_coverage',            biosphere_memos.plant_coverage.value());
         update_renderpass_vector_attribute('gradient',           gradient);
 
         // ATMOSPHERE PROPERTIES
         update_renderpass_uniform  ('atmosphere_scale_height',   atmosphere_scale_height );
-        update_renderpass_uniform  ('surface_air_rayleigh_scattering_coefficients', new THREE.Vector3(5.20e-6, 1.21e-5, 2.96e-5));
+        update_renderpass_uniform  ('surface_air_rayleigh_scattering_coefficients', new THREE.Vector3(5.09e-6, 1.14e-5, 2.83e-5));
         update_renderpass_uniform  ('surface_air_mie_scattering_coefficients',      new THREE.Vector3(2.1e-8,  2.1e-8,  2.1e-8 ));
         update_renderpass_uniform  ('surface_air_absorption_coefficients',          new THREE.Vector3(0));
 
         // SEA PROPERTIES
         update_renderpass_uniform  ('sealevel',             world.hydrosphere.sealevel.value());
-        update_renderpass_uniform  ('ocean_rayleigh_scattering_coefficients', new THREE.Vector3(0.005, 0.01, 0.03));
+        update_renderpass_uniform  ('ocean_rayleigh_scattering_coefficients', new THREE.Vector3(0.0056, 0.0125, 0.0312));
         update_renderpass_uniform  ('ocean_mie_scattering_coefficients',      new THREE.Vector3(0));
-        update_renderpass_uniform  ('ocean_absorption_coefficients',          new THREE.Vector3(3e-1, 1e-1, 2e-2));
+        update_renderpass_uniform  ('ocean_absorption_coefficients',          new THREE.Vector3(0.1, 0.01, 0.004));
 
         // SHADERPASS PROPERTIES -----------------------------------------------
 
@@ -246,7 +247,7 @@ function RealisticWorldView(shader_return_value) {
 
         // ATMOSPHERE PROPERTIES
         update_shaderpass_uniform  ('atmosphere_scale_height',  atmosphere_scale_height  );
-        update_shaderpass_uniform  ('surface_air_rayleigh_scattering_coefficients', new THREE.Vector3(5.20e-6, 1.21e-5, 2.96e-5));
+        update_shaderpass_uniform  ('surface_air_rayleigh_scattering_coefficients', new THREE.Vector3(5.09e-6, 1.14e-5, 2.83e-5));
         update_shaderpass_uniform  ('surface_air_mie_scattering_coefficients',      new THREE.Vector3(2.1e-8,  2.1e-8,  2.1e-8 ));
         update_shaderpass_uniform  ('surface_air_absorption_coefficients',          new THREE.Vector3(0));
     };

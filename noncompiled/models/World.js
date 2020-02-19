@@ -57,13 +57,12 @@ function World(parameters) {
 
     this.lithosphere     = new Lithosphere    (this.grid, parameters.lithosphere    || {});
     this.hydrosphere     = new Hydrosphere    (this.grid, parameters.hydrosphere    || {});
-    this.atmosphere     = new Atmosphere    (this.grid, parameters.atmosphere     || {});
-    this.biosphere         = new Biosphere        (this.grid, parameters.biosphere     || {});
+    this.atmosphere      = new Atmosphere     (this.grid, parameters.atmosphere     || {});
+    this.biosphere       = new Biosphere      (parameters.biosphere                 || {grid: this.grid});
 
 
     this.getParameters = function() {
         return { 
-            type:                     'world',
             grid:                     this.grid.getParameters(),
             id:                     this.id,
             name:                     this.name,
@@ -85,9 +84,6 @@ function World(parameters) {
     this.setDependencies = function(dependencies) {
         if (dependencies['get_average_insolation'] !== void 0) {
             this.atmosphere.setDependencies(
-                {'get_average_insolation': dependencies.get_average_insolation}
-            );
-            this.biosphere.setDependencies(
                 {'get_average_insolation': dependencies.get_average_insolation}
             );
             this.hydrosphere.setDependencies(
@@ -119,25 +115,18 @@ function World(parameters) {
             'surface_height'         : this.lithosphere.surface_height,
             'snow_coverage'             : this.hydrosphere.snow_coverage,
             'ocean_coverage'        : this.hydrosphere.ocean_coverage,
-            'plant_coverage'        : this.biosphere.plant_coverage,
-        });
-        this.biosphere.setDependencies({
-            'long_term_surface_temperature'    : this.atmosphere.long_term_surface_temperature,
-            'precipitation'        : this.atmosphere.precipitation,
         });
 
         // WARNING: order matters! (sorry, I'm working on it!)
         this.lithosphere.initialize();
         this.hydrosphere.initialize();
         this.atmosphere.initialize();
-        this.biosphere.initialize();
     }
 
     this.invalidate = function() {
         this.lithosphere.invalidate();
         this.hydrosphere.invalidate();
         this.atmosphere.invalidate();
-        this.biosphere.invalidate();
     }
 
     this.calcChanges = function(timestep) {
@@ -149,7 +138,6 @@ function World(parameters) {
         this.lithosphere.calcChanges(timestep);
         this.hydrosphere.calcChanges(timestep);
         this.atmosphere.calcChanges(timestep);
-        this.biosphere.calcChanges(timestep);
     };
 
     this.applyChanges = function(timestep) {
@@ -160,7 +148,9 @@ function World(parameters) {
         this.lithosphere.applyChanges(timestep);
         this.hydrosphere.applyChanges(timestep);
         this.atmosphere.applyChanges(timestep);
-        this.biosphere.applyChanges(timestep);
+
+        Biosphere.get_memos ( this.biosphere, this.atmosphere, this.universe );
+        Biosphere.get_update( this.biosphere, this.biosphere_memo,  timestep, this.biosphere );
     };
     return this;
 }
